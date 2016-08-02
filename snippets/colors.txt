@@ -27,14 +27,9 @@ colors:
 #fff9c0; /* pale pale yellow */
 #f4f4f4; /* table background color */
 
-icons from:
-http://flaticons.net/
 
-submenu toggle from:
-http://www.jasong-designs.com/2016/06/30/hiding-and-showing-a-wordpress-menu-ii-javascript-only-please/
 
 try:
-#ffffff
 #ff606e -- pretty salmon
 #00DDD8 -- pretty blue
 #517398 -- blue-gray
