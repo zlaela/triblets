@@ -1,0 +1,275 @@
+﻿/*  Helpful snippets  */
+
+/// This sets the featured image of a custom post type as the background image of a div
+<?php if (has_post_thumbnail( $post->ID ) ): ?>
+<?php $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'single-post-thumbnail' ); ?>
+<div id="custom-bg" style="background-image: url('<?php echo $image[0]; ?>')">
+
+</div>
+<?php endif; ?>
+
+////remove parts from event organisre plugin
+    add_filter( 'eventorganiser_register_taxonomy_event-venue', '__return_false' );
+    add_filter( 'eventorganiser_register_taxonomy_event-category', '__return_false' );
+    add_filter( 'eventorganiser_register_taxonomy_event-tag', '__return_false' );
+
+?php
+/**
+ * Add this to your theme for it to take affect.
+ */
+
+global $eo_event_loop,$eo_event_loop_args;
+
+//Date % Time format for events
+$date_format = get_option('date_format');
+$time_format = get_option('time_format');
+
+//The list ID / classes
+$id = ( $eo_event_loop_args['id'] ? 'id="'.$eo_event_loop_args['id'].'"' : '' );
+$classes = $eo_event_loop_args['class'];
+
+$current_month = false;
+
+?>
+
+<?php if( $eo_event_loop->have_posts() ): ?>
+
+        <?php while( $eo_event_loop->have_posts() ): $eo_event_loop->the_post(); ?>
+
+            <?php 
+            if( $current_month != eo_get_the_start('m') ){
+
+                    //End previous group
+                    echo '</ul>';
+                    //Start new group
+                    echo '<h3>'.eo_get_the_start('F Y').'</h3>';
+                    echo '<ul>';
+            }
+            $current_month = eo_get_the_start('m');
+
+            //Generate HTML classes for this event
+            $eo_event_classes = eo_get_event_classes(); 
+
+            //For non-all-day events, include time format
+            $format = ( eo_is_all_day() ? $date_format : $date_format. '--' .$time_format );
+            ?>
+
+            <li class="<?php echo esc_attr(implode(' ',$eo_event_classes)); ?>" >
+                <a href="<?php the_permalink();?>" title="<?php the_title_attribute(); ?>" >
+                     <?php the_title(); ?>
+                </a> 
+                <?php echo __('<br>','eventorganiser') . ' '.eo_get_the_start($format). ' to ' .eo_get_the_end($time_format); ?>
+            </li>
+
+        <?php endwhile; ?>
+
+<?php elseif( ! empty($eo_event_loop_args['no_events']) ): ?>
+
+    <ul id="<?php echo esc_attr($id);?>" class="<?php echo esc_attr($classes);?>" > 
+        <li class="eo-no-events" > <?php echo $eo_event_loop_args['no_events']; ?> </li>
+    </ul>
+
+<?php endif; ?>
+
+
+
+
+<?php 
+
+/* DATE-BASED NOTICES  */
+$today  = new DateTime( 'today', eo_get_blog_timezone() );
+$last = eo_get_schedule_last( DATETIMEOBJ );
+$lastTodayDiff = (int) eo_date_interval( $last, $today, '%a' );
+
+if (  $today == $last  ) {  // ends today
+	$messageBox = "<span class='notice finalNight'>Final&nbsp;Night</span>";
+}
+
+if (  ($lastTodayDiff > 0 && $lastTodayDiff < 4) ) {
+	$messageBox = "<span class='notice endsSoon'>Ends&nbsp;Soon</span>";
+}
+
+if( $last->format( 'Y-m-d' ) == $today->format( 'Y-m-d' ) ){
+    //last occurrence is today, but may have already started!
+	$messageBox = "<span class='notice endsSoon'>Last&nbsp;Day</span>";
+}
+
+if( $lastTodayDiff > 0 && $lastTodayDiff < 4 ){
+    //Less than 4 days to go, but one or more days (i.e. more than 24 hours to go).
+	$messageBox = "<span class='notice endsSoon'>Ends&nbsp;Soon</span>";
+}
+
+if ( $messageBox  ) {
+	echo $messageBox;
+}
+
+$messageBox = '';
+
+?>
+
+
+
+An edited shortcode event list template, grouping events by date
+shortcode-event-list.php
+<?php
+/**
+ * Add this to your theme for it to take affect.
+ */
+global $eo_event_loop,$eo_event_loop_args;
+//Date % Time format for events
+$date_format = get_option('date_format');
+$time_format = get_option('time_format');
+//The list ID / classes
+$id = ( $eo_event_loop_args['id'] ? 'id="'.$eo_event_loop_args['id'].'"' : '' );
+$classes = $eo_event_loop_args['class'];
+$current_date =  false;
+?>
+
+<?php if( $eo_event_loop->have_posts() ): ?>
+
+		<?php while( $eo_event_loop->have_posts() ): $eo_event_loop->the_post(); ?>
+
+			<?php 
+			if( $current_date != eo_get_the_start('Ymd') ){
+				if( $current_date ){
+					//End previous group
+					echo '</ul>';
+				}
+				
+				//Start new group
+				echo '<h3>'.eo_get_the_start('jS F Y').'</h3>';
+				echo '<ul>';
+				
+				$current_date = eo_get_the_start('Ymd');
+		
+			}
+				
+			//Generate HTML classes for this event
+			$eo_event_classes = eo_get_event_classes(); 
+			//For non-all-day events, include time format
+			$format = ( eo_is_all_day() ? $date_format : $date_format.' '.$time_format );
+			?>
+
+			<li class="<?php echo esc_attr(implode(' ',$eo_event_classes)); ?>" >
+				<a href="<?php the_permalink(); ?>" title="<?php the_title_attribute(); ?>" ><?php the_title(); ?></a> <?php echo __('on','eventorganiser') . ' '.eo_get_the_start($format); ?>
+			</li>
+
+		<?php endwhile; ?>
+
+<?php elseif( ! empty($eo_event_loop_args['no_events']) ): ?>
+
+	<ul id="<?php echo esc_attr($id);?>" class="<?php echo esc_attr($classes);?>" > 
+		<li class="eo-no-events" > <?php echo $eo_event_loop_args['no_events']; ?> </li>
+	</ul>
+
+<?php endif; ?>
+
+
+
+
+
+
+Yay! After 4 hours of dinkin’ around with some other code I found here on the forum I figured this out :) This will list your events grouped by month with a month header for each group. Simply use the shortcode [eo_events] on your events page (you will have to create that).
+
+Thanks for posting this Don. I should add that the template file in which to put the above should be called shortcode-event-list.php.
+
+Is there a simple way to NOT list any of the events that have already ended? Currently the code lists all events per month.
+Thanks!
+Yes, where you are using the shortcode you can use the event_end_after attribute:
+
+ [eo_events event_end_after='now']
+
+
+
+Here is the code for others to use:
+
+<?php
+/**
+ * Add this to your theme for it to take affect.
+ */
+
+global $eo_event_loop,$eo_event_loop_args;
+
+//Date % Time format for events
+$date_format = get_option('date_format');
+$time_format = get_option('time_format');
+
+//The list ID / classes
+$id = ( $eo_event_loop_args['id'] ? 'id="'.$eo_event_loop_args['id'].'"' : '' );
+$classes = $eo_event_loop_args['class'];
+
+$current_month = false;
+
+?>
+
+<?php if( $eo_event_loop->have_posts() ): ?>
+
+        <?php while( $eo_event_loop->have_posts() ): $eo_event_loop->the_post(); ?>
+
+            <?php 
+            if( $current_month != eo_get_the_start('m') ){
+
+                    //End previous group
+                    echo '</ul>';
+                    //Start new group
+                    echo '<h3>'.eo_get_the_start('F Y').'</h3>';
+                    echo '<ul>';
+            }
+            $current_month = eo_get_the_start('m');
+
+            //Generate HTML classes for this event
+            $eo_event_classes = eo_get_event_classes(); 
+
+            //For non-all-day events, include time format
+            $format = ( eo_is_all_day() ? $date_format : $date_format. '--' .$time_format );
+            ?>
+
+            <li class="<?php echo esc_attr(implode(' ',$eo_event_classes)); ?>" >
+                <a href="<?php the_permalink();?>" title="<?php the_title_attribute(); ?>" >
+                     <?php the_title(); ?>
+                </a> 
+                <?php echo __('<br>','eventorganiser') . ' '.eo_get_the_start($format). ' to ' .eo_get_the_end($time_format); ?>
+            </li>
+
+        <?php endwhile; ?>
+
+<?php elseif( ! empty($eo_event_loop_args['no_events']) ): ?>
+
+    <ul id="<?php echo esc_attr($id);?>" class="<?php echo esc_attr($classes);?>" > 
+        <li class="eo-no-events" > <?php echo $eo_event_loop_args['no_events']; ?> </li>
+    </ul>
+
+<?php endif; ?>
+
+
+
+
+/*---- dynamic sidebar --*/
+	<section>
+	<h3 class="screen-reader-text">Placeholder Section</h3>
+		<div class="ph-section">
+			<?php dynamic_sidebar( 'sidebar-2' ); ?>
+		</div>
+	</section>
+
+
+/*-------------get gallery from post------------*/
+if ( get_post_gallery() ) :
+					var_dump(get_post_gallery());
+				endif; 
+
+
+
+
+/*----------regex for email validation ------*/
+<script language="javascript">
+function checkEmail() {
+var email = document.getElementById('emailaddress');
+var filter = /^(([^<>()[]\.,;:s@"]+(.[^<>()[]\.,;:s@"]+)*)|(".+"))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/;
+if (!filter.test(email.value)) {
+alert('Please provide a valid email address');
+email.focus;
+return false;
+}
+}
+</script>

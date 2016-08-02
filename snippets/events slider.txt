@@ -1,0 +1,41 @@
+	<section id="featured-slider" class="slides-container">
+			<?php
+			$events = new WP_Query(array(
+				'post_type' => 'event', 
+				'suppress_filters' => false, 
+				'posts_per_page' => 5,
+				//'ondate'=>'today',
+				'event_end_before' => 'tomorrow',
+				'showpastevents' => true,
+				'group_events_by'=> 'series',
+				'orderby'=> 'DESC'
+			));
+			?>		
+		<div id="slides" class="grid-parent">	
+		<?php while ( $events->have_posts() ) : $events->the_post(); ?>	
+			
+			<div class="slide grid-parent">			
+				<?php $url = get_post_meta($events->ID, "url", true);
+				if($url!='') {
+					echo '<a href="'.$url.'">';
+					echo the_post_thumbnail('full');
+					echo '</a>';
+				} 
+				else {
+					echo the_post_thumbnail('full');
+				} ?>
+				
+				<div class="caption grid-33">
+					<h5><a><?php the_title(); ?></a></h5> 
+					<?php the_content();?>
+				</div><!-- .caption -->			 
+			</div><!-- .slide -->	
+				
+		<?php endwhile;
+		wp_reset_query(); ?>
+		</div><!-- #slides -->		
+
+      <a href="#" class="slidesjs-previous slidesjs-navigation"><i class="icon-chevron-left"></i></a>
+      <a href="#" class="slidesjs-next slidesjs-navigation"><i class="icon-chevron-right"></i></a>		
+		
+	</section>

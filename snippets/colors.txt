@@ -1,0 +1,41 @@
+colors:
+#e89980; /* our orange */  complement = 170f0c
+#1e8cbe; /* event calendar dark blue */
+#78c8e6; /* event calendar light blue */
+
+#eee; /* border color -- very light gray */
+#e5e5e5; /* border color -- darker */
+
+#444; /* banner brownish-gray */ 170f0c
+#666; /* text color -- dark gray */
+#4A4A4A; /* default text color -- darker gray */
+
+--- limited use --
+#fffae1; /* pale yellow for sticky and tags */
+#ff2233; /* warning red*/
+#ff6; /* sticky note yellow */
+#f8f8f8; /* code background color */
+#de3a31;  /* navbar red */
+
+--- not used --
+#00a5cc; /* nav menu pretty blue */
+#beeeef; /* light highlight blue */
+#283349; /* dark navy-brown */
+#E56038; /* overlay bright orange */
+#f1f1f1; /* gray background color;
+#9e2020; /* dark red/liver */
+#fff9c0; /* pale pale yellow */
+#f4f4f4; /* table background color */
+
+icons from:
+http://flaticons.net/
+
+submenu toggle from:
+http://www.jasong-designs.com/2016/06/30/hiding-and-showing-a-wordpress-menu-ii-javascript-only-please/
+
+try:
+#ffffff
+#ff606e -- pretty salmon
+#00DDD8 -- pretty blue
+#517398 -- blue-gray
+#262c3a -- navy gray
